@@ -608,12 +608,30 @@
                     </div>
 
                     <div class="controls">
+                        <button id="testCamera" class="btn-primary" disabled style="grid-column: 1 / -1;">
+                            <span class="icon">🧪</span> Test Camera First
+                        </button>
                         <button id="startAttendance" class="btn-success" disabled>
                             <span class="icon">▶️</span> Start Attendance
                         </button>
                         <button id="stopAttendance" class="btn-danger" disabled>
                             <span class="icon">⏹️</span> Stop Attendance
                         </button>
+                    </div>
+
+                    <div id="cameraTestResult" style="display: none; margin-top: 15px; padding: 15px; border-radius: 8px;"></div>
+
+                    <div class="card" style="margin-top: 15px; padding: 15px; background: #fff3cd; border: 2px solid #ffc107;">
+                        <h4 style="color: #856404; margin-bottom: 10px; font-size: 1em;">⚠️ Camera Permission Required</h4>
+                        <p style="color: #856404; font-size: 0.9em; margin-bottom: 10px;">
+                            When you click "Test Camera", your browser will ask for permission.
+                        </p>
+                        <ol style="margin-left: 20px; color: #856404; font-size: 0.9em;">
+                            <li>Click <strong>"Allow"</strong> when browser asks</li>
+                            <li>Look for camera icon in address bar</li>
+                            <li>If blocked, click it and select "Allow"</li>
+                            <li>Refresh page if needed</li>
+                        </ol>
                     </div>
 
                     <div class="card" style="margin-top: 15px; padding: 15px; background: #e3f2fd;">
@@ -721,6 +739,7 @@
         const uploadedPhotos = document.getElementById('uploadedPhotos');
         const trainBtn = document.getElementById('trainBtn');
         const clearBtn = document.getElementById('clearBtn');
+        const testCameraBtn = document.getElementById('testCamera');
         const startAttendanceBtn = document.getElementById('startAttendance');
         const stopAttendanceBtn = document.getElementById('stopAttendance');
         const downloadReportBtn = document.getElementById('downloadReport');
@@ -730,6 +749,202 @@
         const trainingProgress = document.getElementById('trainingProgress');
         const progressFill = document.getElementById('progressFill');
         const detectionOverlay = document.getElementById('detectionOverlay');
+        const cameraTestResult = document.getElementById('cameraTestResult');
+
+        // Test Camera Function
+        async function testCamera() {
+            testCameraBtn.disabled = true;
+            testCameraBtn.innerHTML = '<span class="icon">⏳</span> Testing...';
+            
+            cameraTestResult.style.display = 'block';
+            cameraTestResult.style.background = '#fff3cd';
+            cameraTestResult.style.border = '2px solid #ffc107';
+            cameraTestResult.style.color = '#856404';
+            cameraTestResult.innerHTML = '<strong>🧪 Testing camera access...</strong>';
+            
+            addLog('🧪 Starting camera test...', 'info');
+            
+            // Check if API exists
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                const errorMsg = '❌ Camera API not supported in this browser';
+                cameraTestResult.style.background = '#f8d7da';
+                cameraTestResult.style.border = '2px solid #dc3545';
+                cameraTestResult.style.color = '#721c24';
+                cameraTestResult.innerHTML = `
+                    <strong>${errorMsg}</strong><br><br>
+                    Please use:<br>
+                    • Chrome (recommended)<br>
+                    • Firefox<br>
+                    • Edge<br>
+                    • Safari (latest version)
+                `;
+                addLog(errorMsg, 'error');
+                testCameraBtn.disabled = false;
+                testCameraBtn.innerHTML = '<span class="icon">🔄</span> Try Again';
+                return;
+            }
+            
+            // Check permissions API if available
+            if (navigator.permissions && navigator.permissions.query) {
+                try {
+                    const permissionStatus = await navigator.permissions.query({ name: 'camera' });
+                    addLog(`📋 Camera permission state: ${permissionStatus.state}`, 'info');
+                    
+                    if (permissionStatus.state === 'denied') {
+                        const errorMsg = '🚫 Camera permission DENIED by user';
+                        cameraTestResult.style.background = '#f8d7da';
+                        cameraTestResult.style.border = '2px solid #dc3545';
+                        cameraTestResult.style.color = '#721c24';
+                        cameraTestResult.innerHTML = `
+                            <strong>${errorMsg}</strong><br><br>
+                            <strong>How to fix:</strong><br>
+                            1. Click the 🔒 or 🎥 icon in your browser's address bar<br>
+                            2. Find "Camera" settings<br>
+                            3. Change to "Allow"<br>
+                            4. Refresh this page<br>
+                            5. Try again
+                        `;
+                        addLog(errorMsg, 'error');
+                        addLog('💡 Click camera icon in address bar to change permissions', 'info');
+                        testCameraBtn.disabled = false;
+                        testCameraBtn.innerHTML = '<span class="icon">🔄</span> Try Again';
+                        return;
+                    }
+                } catch (e) {
+                    addLog('⚠️ Could not check permission state: ' + e.message, 'error');
+                }
+            }
+            
+            // Try to access camera
+            let stream = null;
+            try {
+                addLog('📹 Requesting camera access...', 'info');
+                
+                // Try simple configuration first
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true 
+                });
+                
+                addLog('✅ Camera access GRANTED!', 'success');
+                
+                // Get camera info
+                const videoTrack = stream.getVideoTracks()[0];
+                const settings = videoTrack.getSettings();
+                const capabilities = videoTrack.getCapabilities ? videoTrack.getCapabilities() : {};
+                
+                addLog(`📷 Camera: ${videoTrack.label}`, 'success');
+                addLog(`📐 Resolution: ${settings.width}x${settings.height}`, 'info');
+                
+                // Show camera in video element briefly
+                video.srcObject = stream;
+                await video.play();
+                
+                // Success message
+                cameraTestResult.style.background = '#d4edda';
+                cameraTestResult.style.border = '2px solid #28a745';
+                cameraTestResult.style.color = '#155724';
+                cameraTestResult.innerHTML = `
+                    <strong>✅ Camera Test SUCCESSFUL!</strong><br><br>
+                    <strong>Camera Details:</strong><br>
+                    📷 Name: ${videoTrack.label || 'Camera detected'}<br>
+                    📐 Resolution: ${settings.width || '?'}x${settings.height || '?'}<br>
+                    🎯 Status: Ready to use<br><br>
+                    <strong>✨ You can now start attendance!</strong>
+                `;
+                
+                addLog('✅ Camera test completed successfully!', 'success');
+                addLog('✅ You can now start attendance', 'success');
+                
+                // Stop test stream after 2 seconds
+                setTimeout(() => {
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                        video.srcObject = null;
+                        video.pause();
+                    }
+                    addLog('📷 Test camera released', 'info');
+                }, 2000);
+                
+                // Enable start attendance button
+                startAttendanceBtn.disabled = false;
+                testCameraBtn.innerHTML = '<span class="icon">✅</span> Test Passed';
+                
+            } catch (error) {
+                addLog('❌ Camera test FAILED: ' + error.name, 'error');
+                addLog('📝 Error details: ' + error.message, 'error');
+                
+                let errorTitle = '';
+                let errorSolution = '';
+                
+                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                    errorTitle = '🚫 Permission Denied';
+                    errorSolution = `
+                        <strong>You clicked "Block" or "Deny"</strong><br><br>
+                        <strong>How to fix:</strong><br>
+                        1. Look at your browser's address bar<br>
+                        2. Find the camera icon (🎥) or lock icon (🔒)<br>
+                        3. Click it<br>
+                        4. Find "Camera" in the list<br>
+                        5. Select "Allow" or "Always allow"<br>
+                        6. Refresh this page (F5)<br>
+                        7. Click "Test Camera" again
+                    `;
+                } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                    errorTitle = '📷 No Camera Found';
+                    errorSolution = `
+                        <strong>Your device has no camera or it's not connected</strong><br><br>
+                        <strong>Solutions:</strong><br>
+                        • Make sure your camera is connected<br>
+                        • Try unplugging and reconnecting webcam<br>
+                        • Close other apps using camera (Zoom, Skype, etc.)<br>
+                        • Restart your browser<br>
+                        • Try a different camera if you have one
+                    `;
+                } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+                    errorTitle = '⚠️ Camera In Use';
+                    errorSolution = `
+                        <strong>Another app is using your camera</strong><br><br>
+                        <strong>Solutions:</strong><br>
+                        • Close Zoom, Skype, Teams, Google Meet<br>
+                        • Close other browser tabs using camera<br>
+                        • Close camera/photo apps<br>
+                        • Restart your browser<br>
+                        • Restart your computer if needed
+                    `;
+                } else if (error.name === 'OverconstrainedError') {
+                    errorTitle = '⚙️ Camera Configuration Issue';
+                    errorSolution = `
+                        <strong>Camera doesn't support required settings</strong><br><br>
+                        This is rare. Try:<br>
+                        • Using a different camera<br>
+                        • Updating camera drivers<br>
+                        • Using a different browser
+                    `;
+                } else {
+                    errorTitle = '❌ Unknown Camera Error';
+                    errorSolution = `
+                        <strong>Error: ${error.message}</strong><br><br>
+                        Try:<br>
+                        • Refresh the page<br>
+                        • Close and reopen browser<br>
+                        • Try different browser (Chrome recommended)<br>
+                        • Check if camera works in other apps<br>
+                        • Restart computer
+                    `;
+                }
+                
+                cameraTestResult.style.background = '#f8d7da';
+                cameraTestResult.style.border = '2px solid #dc3545';
+                cameraTestResult.style.color = '#721c24';
+                cameraTestResult.innerHTML = `
+                    <strong>${errorTitle}</strong><br><br>
+                    ${errorSolution}
+                `;
+                
+                testCameraBtn.disabled = false;
+                testCameraBtn.innerHTML = '<span class="icon">🔄</span> Try Again';
+            }
+        }
 
         // Load Face-API Models
         async function loadModels() {
@@ -916,6 +1131,8 @@
             updateAttendanceDisplay();
             downloadReportBtn.disabled = false;
             resetAttendanceBtn.disabled = false;
+            testCameraBtn.disabled = false; // Enable camera test
+            addLog('✅ Click "Test Camera" to verify camera access before starting', 'success');
         }
 
         // Test Camera Access (called before starting attendance)
@@ -1421,6 +1638,7 @@
         // Event Listeners
         trainBtn.addEventListener('click', trainOnPhotos);
         clearBtn.addEventListener('click', clearAll);
+        testCameraBtn.addEventListener('click', testCamera);
         startAttendanceBtn.addEventListener('click', startAttendance);
         stopAttendanceBtn.addEventListener('click', stopAttendance);
         downloadReportBtn.addEventListener('click', downloadReport);
