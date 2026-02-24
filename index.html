@@ -548,17 +548,17 @@
         </div>
 
         <div id="systemStatus" class="status loading">
-            <span class="icon">⏳</span> Loading AI models...
+            <span class="icon"></span> Loading AI models...
         </div>
 
         <div class="main-content">
             <!-- Left Column: Upload & Training -->
             <div>
                 <div class="card">
-                    <h2><span class="icon">📤</span> Step 1: Upload Student Photos</h2>
+                    <h2><span class="icon"></span> Step 1: Upload Student Photos</h2>
                     
                     <div class="upload-zone" id="uploadZone">
-                        <div class="icon">📁</div>
+                        <div class="icon"></div>
                         <h3>Drag & Drop Photos Here</h3>
                         <p>or click to browse files</p>
                         <p style="margin-top: 10px; font-size: 0.85em;">
@@ -576,10 +576,10 @@
 
                     <div class="controls" style="margin-top: 20px;">
                         <button id="trainBtn" class="btn-success" disabled>
-                            <span class="icon">🎓</span> Train AI on Photos
+                            <span class="icon"></span> Train AI on Photos
                         </button>
                         <button id="clearBtn" class="btn-danger">
-                            <span class="icon">🗑️</span> Clear All
+                            <span class="icon"></span> Clear All
                         </button>
                     </div>
 
@@ -587,7 +587,7 @@
                 </div>
 
                 <div class="card" style="margin-top: 20px;">
-                    <h2><span class="icon">📋</span> Real-Time Debug Log</h2>
+                    <h2><span class="icon"></span> Real-Time Debug Log</h2>
                     <div id="activityLog" class="log">
                         <div class="log-entry">System initialized. Upload photos to begin.</div>
                     </div>
@@ -597,7 +597,7 @@
             <!-- Right Column: Camera & Results -->
             <div>
                 <div class="card">
-                    <h2><span class="icon">📷</span> Step 2: Live Attendance</h2>
+                    <h2><span class="icon"></span> Step 2: Live Attendance</h2>
                     
                     <div class="video-container">
                         <video id="video" autoplay muted playsinline webkit-playsinline></video>
@@ -609,13 +609,13 @@
 
                     <div class="controls">
                         <button id="testCamera" class="btn-primary" disabled style="grid-column: 1 / -1;">
-                            <span class="icon">🧪</span> Test Camera First
+                            <span class="icon"></span> Test Camera First
                         </button>
                         <button id="startAttendance" class="btn-success" disabled>
-                            <span class="icon">▶️</span> Start Attendance
+                            <span class="icon"></span> Start Attendance
                         </button>
                         <button id="stopAttendance" class="btn-danger" disabled>
-                            <span class="icon">⏹️</span> Stop Attendance
+                            <span class="icon"></span> Stop Attendance
                         </button>
                     </div>
 
@@ -639,7 +639,7 @@
                         <details style="cursor: pointer;">
                             <summary style="font-weight: 600; color: #333; margin-bottom: 10px;">Click here for platform-specific help</summary>
                             <div style="margin-top: 10px; font-size: 0.9em; color: #555;">
-                                <p style="margin-bottom: 10px;"><strong>🍎 Mac Users:</strong></p>
+                                <p style="margin-bottom: 10px;"><strong>Mac Users:</strong></p>
                                 <ol style="margin-left: 20px; margin-bottom: 15px;">
                                     <li>Open System Settings → Privacy & Security</li>
                                     <li>Click "Camera" in the sidebar</li>
@@ -658,7 +658,7 @@
                                 
                                 <p style="margin-bottom: 10px;"><strong>🌐 Browser Permissions:</strong></p>
                                 <ol style="margin-left: 20px;">
-                                    <li>Click the 🔒 lock icon in address bar</li>
+                                    <li>Click the lock icon in address bar</li>
                                     <li>Find "Camera" permissions</li>
                                     <li>Select "Allow"</li>
                                     <li>Refresh the page</li>
@@ -691,13 +691,13 @@
                             <span class="icon">💾</span> Download CSV Report
                         </button>
                         <button id="resetAttendance" class="btn-warning" disabled>
-                            <span class="icon">🔄</span> Reset Attendance
+                            <span class="icon"></span> Reset Attendance
                         </button>
                     </div>
 
                     <div class="attendance-lists" id="attendanceLists">
                         <div class="attendance-list present">
-                            <h3>✅ Present</h3>
+                            <h3>Present</h3>
                             <div id="presentList">
                                 <div class="empty-state">
                                     <div class="icon">⏳</div>
@@ -706,10 +706,10 @@
                             </div>
                         </div>
                         <div class="attendance-list absent">
-                            <h3>❌ Absent</h3>
+                            <h3>Absent</h3>
                             <div id="absentList">
                                 <div class="empty-state">
-                                    <div class="icon">⏳</div>
+                                    <div class="icon"></div>
                                     <p>Upload photos first</p>
                                 </div>
                             </div>
@@ -766,7 +766,7 @@
             
             // Check if API exists
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                const errorMsg = '❌ Camera API not supported in this browser';
+                const errorMsg = ' Camera API not supported in this browser';
                 cameraTestResult.style.background = '#f8d7da';
                 cameraTestResult.style.border = '2px solid #dc3545';
                 cameraTestResult.style.color = '#721c24';
@@ -791,27 +791,26 @@
                     addLog(`📋 Camera permission state: ${permissionStatus.state}`, 'info');
                     
                     if (permissionStatus.state === 'denied') {
-                        const errorMsg = '🚫 Camera permission DENIED by user';
+                        const errorMsg = ' Camera permission DENIED by user';
                         cameraTestResult.style.background = '#f8d7da';
                         cameraTestResult.style.border = '2px solid #dc3545';
                         cameraTestResult.style.color = '#721c24';
                         cameraTestResult.innerHTML = `
                             <strong>${errorMsg}</strong><br><br>
                             <strong>How to fix:</strong><br>
-                            1. Click the 🔒 or 🎥 icon in your browser's address bar<br>
                             2. Find "Camera" settings<br>
                             3. Change to "Allow"<br>
                             4. Refresh this page<br>
                             5. Try again
                         `;
                         addLog(errorMsg, 'error');
-                        addLog('💡 Click camera icon in address bar to change permissions', 'info');
+                        addLog(' Click camera icon in address bar to change permissions', 'info');
                         testCameraBtn.disabled = false;
-                        testCameraBtn.innerHTML = '<span class="icon">🔄</span> Try Again';
+                        testCameraBtn.innerHTML = '<span class="icon"></span> Try Again';
                         return;
                     }
                 } catch (e) {
-                    addLog('⚠️ Could not check permission state: ' + e.message, 'error');
+                    addLog('Could not check permission state: ' + e.message, 'error');
                 }
             }
             
@@ -825,15 +824,15 @@
                     video: true 
                 });
                 
-                addLog('✅ Camera access GRANTED!', 'success');
+                addLog(' Camera access GRANTED!', 'success');
                 
                 // Get camera info
                 const videoTrack = stream.getVideoTracks()[0];
                 const settings = videoTrack.getSettings();
                 const capabilities = videoTrack.getCapabilities ? videoTrack.getCapabilities() : {};
                 
-                addLog(`📷 Camera: ${videoTrack.label}`, 'success');
-                addLog(`📐 Resolution: ${settings.width}x${settings.height}`, 'info');
+                addLog(` Camera: ${videoTrack.label}`, 'success');
+                addLog(` Resolution: ${settings.width}x${settings.height}`, 'info');
                 
                 // Show camera in video element briefly
                 video.srcObject = stream;
@@ -844,16 +843,16 @@
                 cameraTestResult.style.border = '2px solid #28a745';
                 cameraTestResult.style.color = '#155724';
                 cameraTestResult.innerHTML = `
-                    <strong>✅ Camera Test SUCCESSFUL!</strong><br><br>
+                    <strong> Camera Test SUCCESSFUL!</strong><br><br>
                     <strong>Camera Details:</strong><br>
-                    📷 Name: ${videoTrack.label || 'Camera detected'}<br>
-                    📐 Resolution: ${settings.width || '?'}x${settings.height || '?'}<br>
-                    🎯 Status: Ready to use<br><br>
+                    Name: ${videoTrack.label || 'Camera detected'}<br>
+                     Resolution: ${settings.width || '?'}x${settings.height || '?'}<br>
+                     Status: Ready to use<br><br>
                     <strong>✨ You can now start attendance!</strong>
                 `;
                 
-                addLog('✅ Camera test completed successfully!', 'success');
-                addLog('✅ You can now start attendance', 'success');
+                addLog(' Camera test completed successfully!', 'success');
+                addLog(' You can now start attendance', 'success');
                 
                 // Stop test stream after 2 seconds
                 setTimeout(() => {
@@ -867,22 +866,21 @@
                 
                 // Enable start attendance button
                 startAttendanceBtn.disabled = false;
-                testCameraBtn.innerHTML = '<span class="icon">✅</span> Test Passed';
+                testCameraBtn.innerHTML = '<span class="icon"></span> Test Passed';
                 
             } catch (error) {
-                addLog('❌ Camera test FAILED: ' + error.name, 'error');
-                addLog('📝 Error details: ' + error.message, 'error');
+                addLog(' Camera test FAILED: ' + error.name, 'error');
+                addLog(' Error details: ' + error.message, 'error');
                 
                 let errorTitle = '';
                 let errorSolution = '';
                 
                 if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                    errorTitle = '🚫 Permission Denied';
+                    errorTitle = ' Permission Denied';
                     errorSolution = `
                         <strong>You clicked "Block" or "Deny"</strong><br><br>
                         <strong>How to fix:</strong><br>
                         1. Look at your browser's address bar<br>
-                        2. Find the camera icon (🎥) or lock icon (🔒)<br>
                         3. Click it<br>
                         4. Find "Camera" in the list<br>
                         5. Select "Allow" or "Always allow"<br>
@@ -890,7 +888,7 @@
                         7. Click "Test Camera" again
                     `;
                 } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-                    errorTitle = '📷 No Camera Found';
+                    errorTitle = ' No Camera Found';
                     errorSolution = `
                         <strong>Your device has no camera or it's not connected</strong><br><br>
                         <strong>Solutions:</strong><br>
@@ -1787,3 +1785,4 @@
     </script>
 </body>
 </html>
+
